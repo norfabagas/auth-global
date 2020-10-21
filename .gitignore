@@ -1,1 +1,5 @@
 /.idea
+/bin
+/auth-global
+/.env
+/.vscode
