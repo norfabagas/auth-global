@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/norfabagas/auth-global/api/jwt"
 	"github.com/norfabagas/auth-global/api/models"
@@ -78,5 +79,12 @@ func (server *Server) signIn(email, password string) (string, error) {
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
 		return "", err
 	}
-	return jwt.CreateToken(user.PublicID)
+
+	stringID := strconv.Itoa(int(user.ID))
+
+	publicID, err := crypto.Encrypt(stringID, os.Getenv("APP_KEY"))
+	if err != nil {
+		return "", err
+	}
+	return jwt.CreateToken(publicID)
 }

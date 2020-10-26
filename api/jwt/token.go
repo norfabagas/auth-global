@@ -18,17 +18,21 @@ func CreateToken(userPublicID string) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	claims["user_id"] = userPublicID
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	return token.SignedString([]byte(os.Getenv("API_SECRET")))
 }
 
 func ExtractToken(r *http.Request) string {
+	// check token key on the url
 	keys := r.URL.Query()
 	token := keys.Get("token")
 	if token != "" {
 		return token
 	}
+
+	// check token (Authorization) from header
 	bearerToken := r.Header.Get("Authorization")
 	if len(strings.Split(bearerToken, " ")) == 2 {
 		return strings.Split(bearerToken, " ")[1]
