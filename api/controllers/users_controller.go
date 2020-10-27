@@ -51,7 +51,7 @@ func (server *Server) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}{
 		Name:      userCreated.Name,
 		Email:     userCreated.Email,
-		PublicID:  userCreated.PublicID,
+		PublicID:  user.PublicID,
 		CreatedAt: userCreated.CreatedAt,
 	})
 }
@@ -79,10 +79,12 @@ func (server *Server) ShowUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responses.JSON(w, http.StatusOK, true, http.StatusText(http.StatusOK), struct {
+		PublicID   string    `json:"public_id"`
 		Name       string    `json:"name"`
 		Email      string    `json:"email"`
 		LastUpdate time.Time `json:"last_update"`
 	}{
+		PublicID:   user.PublicID,
 		Name:       name,
 		Email:      user.Email,
 		LastUpdate: user.UpdatedAt,
