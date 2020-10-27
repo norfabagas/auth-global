@@ -14,10 +14,12 @@ import (
 	"github.com/norfabagas/auth-global/api/utils/crypto"
 )
 
+const TokenExpiryInHour = 24
+
 func CreateToken(userPublicID string) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
-	claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+	claims["exp"] = time.Now().Add(time.Hour * TokenExpiryInHour).Unix()
 	claims["user_id"] = userPublicID
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 

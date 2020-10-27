@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 
+	"github.com/norfabagas/auth-global/api/jwt"
 	"github.com/norfabagas/auth-global/api/models"
 	"github.com/norfabagas/auth-global/api/responses"
+	"github.com/norfabagas/auth-global/api/utils/crypto"
 	"github.com/norfabagas/auth-global/api/utils/formatting"
 )
 
@@ -50,5 +53,38 @@ func (server *Server) CreateUser(w http.ResponseWriter, r *http.Request) {
 		Email:     userCreated.Email,
 		PublicID:  userCreated.PublicID,
 		CreatedAt: userCreated.CreatedAt,
+	})
+}
+
+func (server *Server) ShowUser(w http.ResponseWriter, r *http.Request) {
+	user := models.User{}
+
+	userID, err := jwt.ExtractTokenID(r)
+
+	if err != nil {
+		responses.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	err = server.DB.Debug().Model(models.User{}).Where("id = ?", userID).Take(&user).Error
+	if err != nil {
+		responses.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	name, err := crypto.Decrypt(user.Name, os.Getenv("APP_KEY"))
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, true, http.StatusText(http.StatusOK), struct {
+		Name       string    `json:"name"`
+		Email      string    `json:"email"`
+		LastUpdate time.Time `json:"last_update"`
+	}{
+		Name:       name,
+		Email:      user.Email,
+		LastUpdate: user.UpdatedAt,
 	})
 }
