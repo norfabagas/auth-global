@@ -123,6 +123,13 @@ func (user *User) Validate(action string) error {
 func (user *User) SaveUser(db *gorm.DB) (*User, error) {
 	var err error
 
+	userCount := db.Model(&User{}).Where("email = ?", user.Email).Find(&User{})
+
+	if userCount.RowsAffected > 0 {
+		return &User{}, errors.New("exists")
+	}
+
+	// Store user to DB
 	err = db.Debug().Create(&user).Error
 	if err != nil {
 		return &User{}, err
