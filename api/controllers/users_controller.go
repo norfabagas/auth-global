@@ -90,3 +90,48 @@ func (server *Server) ShowUser(w http.ResponseWriter, r *http.Request) {
 		LastUpdate: user.UpdatedAt,
 	})
 }
+
+func (server *Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		responses.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	user := models.User{}
+	err = json.Unmarshal(body, &user)
+	if err != nil {
+		responses.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+	tokenID, err := jwt.ExtractTokenID(r)
+	if err != nil {
+		responses.ERROR(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	user.Prepare()
+	err = user.Validate("update")
+	if err != nil {
+		responses.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	updatedUser, err := user.UpdateUser(server.DB, uint32(tokenID))
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, true, http.StatusText(http.StatusOK), struct {
+		PublicID    string    `json:"public_id"`
+		Email       string    `json:"email"`
+		Name        string    `json:"name"`
+		LastUpdated time.Time `json:"last_updated"`
+	}{
+		PublicID:    updatedUser.PublicID,
+		Email:       updatedUser.Email,
+		Name:        updatedUser.Name,
+		LastUpdated: updatedUser.UpdatedAt,
+	})
+}

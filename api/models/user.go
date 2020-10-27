@@ -171,7 +171,7 @@ func (user *User) UpdateUser(db *gorm.DB, id uint32) (*User, error) {
 		return &User{}, err
 	}
 
-	db = db.Debug().Model(&User{}).Where("id = ?").UpdateColumns(
+	db = db.Debug().Model(&User{}).Where("id = ?", id).UpdateColumns(
 		map[string]interface{}{
 			"name":       encryptedName,
 			"updated_at": user.UpdatedAt,
@@ -181,7 +181,7 @@ func (user *User) UpdateUser(db *gorm.DB, id uint32) (*User, error) {
 		return &User{}, db.Error
 	}
 
-	err = db.Debug().Model(&User{}).Where("id = ?").Take(&user).Error
+	err = db.Debug().Model(&User{}).Where("id = ?", id).Take(&user).Error
 	if err != nil {
 		return &User{}, err
 	}

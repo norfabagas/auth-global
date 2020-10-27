@@ -77,7 +77,7 @@ func (server *Server) signIn(email, password string) (string, error) {
 	}
 	err = models.VerifyPassword(user.Password, password)
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
-		return "", err
+		return "", formatting.FormatError(err.Error())
 	}
 
 	stringID := strconv.Itoa(int(user.ID))

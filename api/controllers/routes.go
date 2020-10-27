@@ -11,4 +11,5 @@ func (s *Server) InitializeRoutes() {
 	v1.HandleFunc("/login", middlewares.SetMiddlewareJSON(s.Login)).Methods("POST")
 	v1.HandleFunc("/register", middlewares.SetMiddlewareJSON(s.CreateUser)).Methods("POST")
 	v1.HandleFunc("/user", middlewares.SetMiddlewareAuth(middlewares.SetMiddlewareJSON(s.ShowUser))).Methods("GET")
+	v1.HandleFunc("/user/edit", middlewares.SetMiddlewareAuth(middlewares.SetMiddlewareJSON(s.UpdateUser))).Methods("PUT")
 }
