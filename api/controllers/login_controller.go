@@ -115,7 +115,7 @@ func (server *Server) ForgetPassword(w http.ResponseWriter, r *http.Request) {
 
 	notifyEmail := keys.Get("notify")
 	if notifyEmail != "" && notifyEmail == "true" {
-		message := fmt.Sprintf("Hello %s,\nWe would like to inform your newly generated password. Please use below:\n%s.\nThanks", changedUser.Email, generatedPassword)
+		message := fmt.Sprintf("Hello %s,\nWe would like to inform your newly generated password. Please use below:\n%s\n\nThanks", changedUser.Email, generatedPassword)
 		err = smtp.Send(
 			[]string{changedUser.Email},
 			[]string{},
@@ -151,6 +151,16 @@ func (server *Server) ForgetPassword(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
+}
+
+func (server *Server) TestMail(w http.ResponseWriter, r *http.Request) {
+	err := smtp.Send([]string{"akunnyagugel@gmail.com"}, []string{}, "Lorem Ipsum", "Lorem Ipsum Dolor Sit Amet")
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, true, "OK", "Success")
 }
 
 func (server *Server) signIn(email, password string) (string, error) {
