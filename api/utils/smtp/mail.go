@@ -7,13 +7,8 @@ import (
 	"strings"
 )
 
-var config_email = os.Getenv("CONFIG_SMTP_EMAIL")
-var config_password = os.Getenv("CONFIG_SMTP_PASSWORD")
-var config_host = os.Getenv("CONFIG_SMTP_HOST")
-var config_port = os.Getenv("CONFIG_SMTP_PORT")
-
 func Send(to, cc []string, subject, message string) error {
-	body := "From: " + config_email + "\n" +
+	body := "From: " + os.Getenv("CONFIG_SMTP_EMAIL") + "\n" +
 		"To: " + strings.Join(to, ",") + "\n" +
 		"Cc: " + strings.Join(cc, ",") + "\n" +
 		"Subject: " + subject + "\n\n" +
@@ -21,19 +16,19 @@ func Send(to, cc []string, subject, message string) error {
 
 	auth := smtp.PlainAuth(
 		"",
-		config_email,
-		config_password,
-		config_port,
+		os.Getenv("CONFIG_SMTP_EMAIL"),
+		os.Getenv("CONFIG_SMTP_PASSWORD"),
+		os.Getenv("CONFIG_SMTP_PORT"),
 	)
 	smtpAddr := fmt.Sprintf("%s:%s",
-		config_host,
-		config_port,
+		os.Getenv("CONFIG_SMTP_HOST"),
+		os.Getenv("CONFIG_SMTP_PORT"),
 	)
 
 	err := smtp.SendMail(
 		smtpAddr,
 		auth,
-		config_email,
+		os.Getenv("CONFIG_SMTP_EMAIL"),
 		append(to, cc...),
 		[]byte(body),
 	)

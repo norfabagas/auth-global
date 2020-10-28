@@ -21,6 +21,9 @@ func FormatError(err string) error {
 	if strings.Contains(err, "exists") {
 		return errors.New("user already exists")
 	}
+	if strings.Contains(err, "notFound") {
+		return errors.New("user not found")
+	}
 
 	return errors.New("incorrect details")
 }

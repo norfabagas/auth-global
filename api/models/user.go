@@ -115,6 +115,16 @@ func (user *User) Validate(action string) error {
 
 		return nil
 
+	case "forget":
+		if user.Email == "" {
+			return errors.New("required email")
+		}
+		if err := checkmail.ValidateFormat(user.Email); err != nil {
+			return errors.New("invalid email format")
+		}
+
+		return nil
+
 	default:
 		return errors.New("undefined action")
 	}
