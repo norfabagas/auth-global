@@ -2,13 +2,14 @@ package smtp
 
 import (
 	"fmt"
+	"log"
 	"net/smtp"
 	"os"
 	"strconv"
 	"strings"
 )
 
-func Send(to []string, cc []string, subject, message string) error {
+func Send(to []string, cc []string, subject, message string) {
 	email := os.Getenv("CONFIG_SMTP_EMAIL")
 	password := os.Getenv("CONFIG_SMTP_PASSWORD")
 	host := os.Getenv("CONFIG_SMTP_HOST")
@@ -16,7 +17,7 @@ func Send(to []string, cc []string, subject, message string) error {
 
 	intPort, err := strconv.Atoi(port)
 	if err != nil {
-		return err
+		log.Println(err)
 	}
 
 	body := "From: " + email + "\n" +
@@ -30,8 +31,6 @@ func Send(to []string, cc []string, subject, message string) error {
 
 	err = smtp.SendMail(smtpAddr, auth, email, append(to, cc...), []byte(body))
 	if err != nil {
-		return err
+		log.Println(err)
 	}
-
-	return nil
 }
