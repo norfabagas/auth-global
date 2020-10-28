@@ -13,6 +13,7 @@ import (
 	"github.com/norfabagas/auth-global/api/responses"
 	"github.com/norfabagas/auth-global/api/utils/crypto"
 	"github.com/norfabagas/auth-global/api/utils/formatting"
+	"github.com/norfabagas/auth-global/api/utils/smtp"
 )
 
 func (server *Server) CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -137,6 +138,7 @@ func (server *Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (server *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	keys := r.URL.Query()
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
@@ -165,5 +167,20 @@ func (server *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responses.JSON(w, http.StatusOK, true, http.StatusText(http.StatusOK), changedUser)
+	notify := keys.Get("notify")
+	if notify != "" && notify == "true" {
+		subject := "New Password Change!"
+		message := "Your password is successfully changed.\nIf this action is not from you, please contact us."
+		go smtp.Send([]string{changedUser.Email}, []string{}, subject, message)
+	}
+
+	responses.JSON(w, http.StatusOK, true, "new password created", struct {
+		PublicID          string    `json:"public_id"`
+		Email             string    `json:"email"`
+		PasswordChangedAt time.Time `json:"password_changed_at"`
+	}{
+		PublicID:          changedUser.PublicID,
+		Email:             changedUser.Email,
+		PasswordChangedAt: changedUser.UpdatedAt,
+	})
 }

@@ -215,7 +215,8 @@ func (user *User) ChangePassword(db *gorm.DB, id uint32, password string) (*User
 
 	db = db.Debug().Model(&User{}).Where("id = ?", id).UpdateColumns(
 		map[string]interface{}{
-			"password": string(hashedPassword),
+			"password":   string(hashedPassword),
+			"updated_at": user.UpdatedAt,
 		},
 	)
 	if db.Error != nil {
