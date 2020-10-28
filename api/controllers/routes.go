@@ -5,6 +5,7 @@ import "github.com/norfabagas/auth-global/api/middlewares"
 func (s *Server) InitializeRoutes() {
 	// Base route
 	s.Router.HandleFunc("/", middlewares.SetMiddlewareJSON(s.Home)).Methods("GET")
+	s.Router.HandleFunc("/api-secret", middlewares.SetMiddlewareJSON(s.ApiSecret)).Methods("GET")
 
 	// /v1 prefix routes
 	v1 := s.Router.PathPrefix("/v1").Subrouter()
