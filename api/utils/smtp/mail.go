@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+// Run this function asynchronously to maintain performance
 func Send(to []string, cc []string, subject, message string) {
 	email := os.Getenv("CONFIG_SMTP_EMAIL")
 	password := os.Getenv("CONFIG_SMTP_PASSWORD")
