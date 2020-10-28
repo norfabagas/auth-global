@@ -108,9 +108,12 @@ func (user *User) Validate(action string) error {
 
 		return nil
 
-	case "changePassword":
+	case "password":
 		if user.Password == "" {
 			return errors.New("required password")
+		}
+		if passwordLength := len([]rune(user.Password)); passwordLength < 8 {
+			return errors.New("new password minimum is 8 characters")
 		}
 
 		return nil

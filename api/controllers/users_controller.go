@@ -135,3 +135,35 @@ func (server *Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		LastUpdated: updatedUser.UpdatedAt,
 	})
 }
+
+func (server *Server) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		responses.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	user := models.User{}
+	json.Unmarshal(body, &user)
+
+	tokenID, err := jwt.ExtractTokenID(r)
+	if err != nil {
+		responses.ERROR(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	user.Prepare()
+	err = user.Validate("password")
+	if err != nil {
+		responses.ERROR(w, http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	changedUser, err := user.ChangePassword(server.DB, tokenID, user.Password)
+	if err != nil {
+		responses.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	responses.JSON(w, http.StatusOK, true, http.StatusText(http.StatusOK), changedUser)
+}
