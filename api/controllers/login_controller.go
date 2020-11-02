@@ -45,7 +45,7 @@ func (server *Server) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = server.DB.Debug().Model(models.User{}).Take(&user).Error
+	err = server.DB.Debug().Model(models.User{}).Where("email = ?", user.Email).Take(&user).Error
 	if err != nil {
 		formattedError := formatting.FormatError(err.Error())
 		responses.ERROR(w, http.StatusUnprocessableEntity, formattedError)
@@ -162,6 +162,8 @@ func (server *Server) signIn(email, password string) (string, error) {
 	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword {
 		return "", formatting.FormatError(err.Error())
 	}
+
+	fmt.Println(user)
 
 	stringID := strconv.Itoa(int(user.ID))
 
