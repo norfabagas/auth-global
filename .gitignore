@@ -3,3 +3,4 @@
 /auth-global
 /.env
 /.vscode
+/vendor/
